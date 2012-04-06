@@ -2,7 +2,7 @@
 /*
 Plugin Name: pTypeConverter
 Plugin URI: http://www.briandgoad.com/downloads/pTypeConverter
-Version: 0.2
+Version: 0.2.1
 Author: Brian D. Goad
 Author URI: http://www.briandgoad.com/
 Description: This plugin, a complete reworking of my old plugin p2pConverter, allows you to easily convert any post type of a certain post to another in an easy to use interface. A pTypeConverter role capability prevents unwanted users from converting pages (i.e. only Administrators and Editors have this ability), which can be adjusted by using a Role Manager plugin. The user interface is located at the pTypeConverter submenu located under the Tools menu.
@@ -15,6 +15,8 @@ register_deactivation_hook(__FILE__,'pTC_uninstall');
 function pTC_install() {
 	global $wpdb;
 	
+	add_action('admin_notices', 'pTC_show_error', 10, 2);
+
 	if ( version_compare(get_bloginfo('version'), '3.2', '>=')) {
 	
 		$pTC_table = $wpdb->prefix . "pTC_logs";
@@ -114,7 +116,8 @@ function logMe($text,$prio=1) {
                       '$text',
                       '$prio'
                       )";
-    $wpdb->query($wpdb->prepare($sql)) or wp_die("Cant add pTC log to db!\n" . $sql);
+    $wpdb->query($wpdb->prepare($sql)) or do_action('admin_notices', "Cant add pTC log to db!", $sql);
+
     unset($sql);
 	unset($userid);
     unset($text);
@@ -122,6 +125,12 @@ function logMe($text,$prio=1) {
     unset($pTC_table);
 	unset($current_user);
 	unset($wpdb);
+}
+
+function pTC_show_error($text, $sql) {
+
+	echo '<div class="error"><p>' . $text . '</p><pre>' . $sql . '</pre></div>';
+
 }
 
 //Add menu item
