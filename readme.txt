@@ -5,7 +5,7 @@ Plugin URI: http://www.briandgoad.com/blog/pTypeConverter
 Tags: post, posts, page, pages, admin, plugin, convert, change, pTC, p2pConverter, custom post, custom posts, post type, post types,
 Requires at least: 2.9
 Tested up to: 3.3.1
-Stable tag: 0.2.1
+Stable tag: 0.2.5
 
 == Description ==
 Converts post types from one to another. This plugin is a complete reworking of my old plugin p2pConverter. pTypeConverter allows you to easily convert any post type of a certain post to another in an easy to use interface.  A pTypeConverter role capability prevents unwanted users from converting pages (i.e. only Administrators and Editors have this ability to begin with), which can be adjusted by using a Role Manager plugin.
@@ -34,6 +34,13 @@ submenu.
 * Implement proper Admin display of posts screen
 
 == Version History ==
+* Added Welcome screen with instructions and FAQ
+* Enhanced user interface functionality with convert messages
+
+= Version 0.2.1 =
+* Fixed blocking issue with install
+
+= Version 0.2 =
 * jQuerified and Ajaxified the plugin
 * Added filtering, logging, and other options
 
