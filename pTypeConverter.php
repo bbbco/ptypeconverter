@@ -445,7 +445,8 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 		$('#pTC_checkall').click(function() {
 			$("#pTC_table_posts input[type='checkbox']").attr('checked', $(this).is(':checked'));
 		});
-		
+	
+
 		$('#pTC_logging_level').change(function() {
 			loadlogging(this.value);
 			return false;
@@ -500,7 +501,11 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			dateFormat: 'yy-mm-dd', 
 			changeMonth: true, 
 			changeYear: true, 
-		});	
+		});
+
+		$("a[href='#convert']").click(function() {	
+			$("#pTC_table_posts").trigger("update");
+		});
 
 		function loadeverything() {			
 			loadtypes();			
@@ -508,7 +513,6 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			toggleLogging();
 			loadlogging($('#pTC_logging_level').val());			
 			loadposts($('.pTC_filter').serialize());
-			rebindPostsTable();
 		}
 		loadeverything();
 
@@ -565,10 +569,12 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			}
 			
 			$(table).empty().append(html);
-			//console.log("appended");
+			console.log("appended");
 		}
 		
 		function rebindPostsTable() {
+			console.log("rebinding posts table");
+			$("#pTC_table_posts").trigger("update"); 
 			
 			$('#pTC_table_posts tr').hover(function(){
 				$(this).addClass('ui-state-hover');
@@ -577,13 +583,14 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			});
 			
 			$('table#pTC_table_posts tr').click(function(event){
+				$(this).toggleClass('ui-state-highlight');
 				if (event.target.type !== 'checkbox') {
 					$(':checkbox', this).attr('checked', function() {
 						return !this.checked;
 					});
 				}
 			});
-		
+
 		}
 		
 		function appendOptions(json, element) {
@@ -597,15 +604,20 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 		
 		function showConvertedPosts(json, element) {
 
+			$("#pTC_table_posts span.message").remove();
+			$("#pTC_table_posts tr").removeClass("ui-state-error").removeClass("ui-state-highlight");
+
 			$.each(json, function(i, item) { 
 				if(item.result == "succeeded") {
 					$("#pTC_" + item.pTC_id).addClass("ui-state-highlight");
-					$("#pTC_" + item.pTC_id + " td:last").html(item.pTC_type + "<span class=\"success\">" + item.message + "</span>");
+					$("#pTC_" + item.pTC_id + " td:last").html(item.pTC_type + "<span class=\"success message\">" + item.message + "</span>");
 				} else {
 					$("#pTC_" + item.pTC_id).addClass("ui-state-error");
-					$("#pTC_" + item.pTC_id + " td:last").append("<span class=\"error\">" + item.message + "</span>");
+					$("#pTC_" + item.pTC_id + " td:last").append("<span class=\"error message\">" + item.message + "</span>");
 				}
 			});
+
+			$("#pTC_table_posts input[type='checkbox']").attr("checked", false);
 		
 		}
 		
@@ -625,7 +637,6 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			//console.log("appending");
 			appendRows(data, table);
 			//console.log($(table).parent());
-			$("#pTC_table_posts").trigger("update"); 
 			rebindPostsTable();
 
 		}
@@ -665,7 +676,7 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 </script>
 
 <style type="text/css">
-li {
+.pTC_filter, .pTC_filter li {
 	display: inline;
 }
 .pTC_date {
@@ -754,12 +765,109 @@ function pTC_show_pTC() {
 <br /><br />
 <div id="pTC_tabs">
 	<ul>
-		<li><a href="#convert">pTypeConverter</a></li>
+		<li><a href="#welcome">Welcome</a></li>
+		<li><a href="#convert">Convert</a></li>
 		<li><a href="#options">Options</a></li>
-		<li><a href="#faq">FAQ</a></li>
 		<li><a href="#logging">Logging</a></li>
 	</ul>
-	
+
+	<div id="welcome">
+
+		<div class="wrap">
+			<h1>pTypeConverter</h1>
+			<p>Thanks for using pTypeConverter, a Wordpress plugin designed to help you convert posts to pages, or any other custom post types available, and vice versa.</p>
+			<p>If you feel like this plugin has helped you, please consider making a donation:
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="donate">
+				<input type="hidden" name="amount" value="">
+				<input type="hidden" name="cmd" value="_xclick">
+				<input type="hidden" name="business" value="bdgoad@gmail.com">
+				<input type="hidden" name="item_name" value="brian d goad - Donation">
+				<input type="hidden" name="no_shipping" value="1">
+				<input type="hidden" name="return" value="http://www.briandgoad.com">
+				<input type="hidden" name="cancel_return" value="http://www.briandgoad.com">
+				<input type="hidden" name="currency_code" value="USD">
+				<input type="hidden" name="page_style" value="">
+				<input type="hidden" name="tax" value="0">
+				<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" style="border: 0pt none ;" name="submit" alt="PayPal - The safer, easier way to pay online">
+			</form></p>
+
+		<hr />
+
+		<h2>Instructions</h2>
+		<h6>Please be advised that all use of pTypeConverter, of any version, is at the users risk. The developer of this plugin accepts no responsibility for the results of any actions taken by the use of pTypeConverter. It is a tool, and its misuse could damage your website severely. Be careful, and think before you convert!</h6>
+		<p>If you are reading this page, then you already have complete access to the plugin. Users with Administrator and Editor roles have the ability to use this plugin, but this capability can be further restricted or adjusted using a Roles and Capabilities plugin.</p>
+		<p>To get started, click the Convert tab.<p>
+		<p>Here, you will see a screen with all of your posts listed. You can use the filter controls to search for and filter the posts that are displayed.</p>
+		<p>Click the checkboxes next to the posts that you want to convert.</p>
+		<p>Next, select from the drop-down which post type you want to convert to.</p>
+		<p>Clicking the convert button will ask you to confirm the conversion.</p>
+		<p>You should see a success or error message for each post that is converted.</p>
+		<p>Now, use the Wordpress interface to confirm that the post(s) show up in the expected places.<p>
+
+		<hr />
+		<h2>Frequently Asked Questions</h2>
+		<p><b>When I convert a page to a post, does it show up under the Posts section, or does it still remain in the Pages section?</b></p>
+		<p>The Page becomes a Post, and will show up in the Posts section along with your other posts.</p>
+		<br />
+		<p><b>When I convert a post to a page, does all of the extra meta-data get converted as well?</b></p>
+		<p>In a short answer, Yes.</p>
+		<p>In a long answer, Yes, because posts and pages, etc are all considered the same thing in	Wordpress (i.e., they all are just records within a table). The main difference between them is that they have a field that determines what type of element they are. So any element that had post qualities, when 	turned into a page will have the same content, but now have the page qualities and ignore whatever fields apply to the post type. If the same page that was a post is converted back to a post, you will find that the same post qualities will still exist, even though they were not evident while it was a page.</p>
+		<br />
+		<p><b>Does this mean that if I convert a post with a bunch of comments that the comments will still be available on the page or other post type?</b></p>
+		<p>Yes, all comments are stored in the database and will be kept in tact. You may have to check your default settings for displaying comments on the new post type, and also check to ensure that your theme supports showing comments on pages/post types.</p>
+		<br />
+		<p><b>I converted a page to a post, but the comments section is not displaying on the full post. What happened? What can I do to fix this?</b></p>
+		<p>WordPress automatically defaults comments on pages to be turned off. When you convert the page to a post, the configurations remain the same, so the comments setting is turned off, even though it is now a post. Future versions of this plugin will probably incorporate controls to determine if you want comments enabled or disabled.</p>
+		<p>To enable comments on the new post, please follow these steps:</p>
+		<ul>
+			<li>- Click to Posts > Posts</li>
+			<li>- Scroll to the post that you want to enable comments on</li>
+			<li>- Click the Edit link for that post</li>
+			<li>- On the Edit Post section, in the upper right-hand section, click the yellow Screen Options button. A large dropdown section should appear</li>
+			<li>- Click the checkbox for Discussion</li>
+			<li>- Now look underneath your main body text editor (the large text area where you type in all of your article information). You should see checkbox options in regards to comments.</li>
+			<li>- Click the checkbox to Allow comments</li>
+			<li>- Click the Save button</li>
+			<li>- Now visit your page, and comments should be enabled.</li>
+		</ul>
+		<br/>
+		<p><b>I converted a post with a bunch of comments to a page, and now all of my comments are missing! What gives?</b></p>
+		<p>Please follow the steps above to ensure that comments are enabled.</p>
+		<p>Next, please ensure that the comments section is setup to display on your page template. You should look in the theme editor for the page_template.php file, and ensure this line is listed after The Loop: <pre><?php echo htmlentities('<?php comments_template(\'\', true); ?>'); ?></pre></p>
+		<br />
+		<p><b>When looking to find a post to convert, I see a bunch of extra listings called Revisions. Should I convert them as well?</b></p>
+		<p>If you see these listings, you have the extra post types enabled, which is found in the Options tab. When working with these post types, please be careful as the extra post types are not meant to be publically accessible. This feature is made available for advanced users who might find it helpful to have this feature available for a number of reasons. One such example is if you have a post that was written over a span of time, and you need the ability to look at previous revisions to merge with the current one. You can convert past revisions to posts, leaving them unpublished, and have them available for reference.</p> 
+		<br />
+		<p><b>I have some posts that I would like to convert to pages, but since posts have categories and pages dont, wouldnt the permalinks break and any pages I have indexed in the search engines be broken?</b></p>
+		<p>No. WordPress is smart about the way they create their pretty URLs. The pages and posts permalinks are retained when converting. As well as categories and such.</p>
+		<br />
+		<p><b>What about the URL? My users will be lost if the bookmarked the old one after I convert!</b></p>
+		<p>No worries! The plugin rewrites the permalinks after conversion so that your old URL will automagically forward the user to the new URL. Wordpress takes care of most of the magic behind the scenes. If you are really concerned about URLs because of SEO, you can use a plugin like Platinum SEO to configure things more to your liking.</p>
+		<br />
+		<p><b>Will converting posts to pages affect my Menu structure?</b></p>
+		<p>No, this should not affect your menu structure, unless you have it setup someway to automatically add new Pages to your menu.</p>
+
+		<hr />
+		<p>Have a question not listed? Feel free to <a href="http://www.briandgoad.com/downloads/ptypeconverter/">leave feedback</a>.</p>
+		<p>Has this plugin helped you? Please consider donating to the developer:</p>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="donate">
+	        <input type="hidden" name="amount" value="">
+	        <input type="hidden" name="cmd" value="_xclick">
+	        <input type="hidden" name="business" value="bdgoad@gmail.com">
+	        <input type="hidden" name="item_name" value="brian d goad - Donation">
+	        <input type="hidden" name="no_shipping" value="1">
+	        <input type="hidden" name="return" value="http://www.briandgoad.com">
+	        <input type="hidden" name="cancel_return" value="http://www.briandgoad.com">
+	        <input type="hidden" name="currency_code" value="USD">
+	        <input type="hidden" name="page_style" value="">
+	        <input type="hidden" name="tax" value="0">
+	        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" style="border: 0pt none ;" name="submit" alt="PayPal - The safer, easier way to pay online">
+        </form>
+
+   	  </div>
+
+	</div>
+
 	<div id="convert">
 	
 		<form id="pTC_form">
@@ -772,7 +880,7 @@ function pTC_show_pTC() {
 				<h2>pTypeConverter</h2>
 				<div class="fLeft">
 					<h3>Filter By ...</h3>
-						<ul style="display:inline">
+						<ul class="pTC_filter">
 							<li>Title: <input type="textbox" class="pTC_filter" id="pTC_filter_title" name="pTC_filter_title"></li> 
 							<li>Author: <select class="pTC_filter" id="pTC_filter_author" name="pTC_filter_author"></select></li>
 							<li>Earliest Date: <input type="text" class="pTC_date pTC_filter" id="pTC_filter_start_date" name="pTC_filter_start_date"></li>
@@ -839,12 +947,6 @@ function pTC_show_pTC() {
 		</div>
 	</div>
 
-	<div id="faq">
-		<div class="wrap">
-			<h2>FAQ</h2>
-		</div>
-	</div>	
-	
 	<div id="logging">
 		<div class="wrap">
 			<h2>Logging</h2>
