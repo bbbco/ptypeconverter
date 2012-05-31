@@ -306,6 +306,11 @@ function pTC_ajax() {
 					$pTC_query_addition .= " OR p.id = '" . esc_attr($id) . "'";
 				}
 			}
+
+                        if ($pTC_filter_limit != "ALL") {
+                                $pTC_query_limit .= " LIMIT " . esc_attr($pTC_filter_limit);
+                        }
+
 				
 		} else {
 		
@@ -313,7 +318,7 @@ function pTC_ajax() {
 			
 		}
 		
-		$pTC_posts_query = "SELECT p.id, p.post_title, u.user_nicename, p.post_date, p.post_type FROM " . $wpdb->posts . " AS p, " . $wpdb->users . " AS u WHERE p.post_author = u.ID" . $pTC_query_addition . " ORDER BY p.post_date ASC";
+		$pTC_posts_query = "SELECT p.id, p.post_title, u.user_nicename, p.post_date, p.post_type FROM " . $wpdb->posts . " AS p, " . $wpdb->users . " AS u WHERE p.post_author = u.ID" . $pTC_query_addition . " ORDER BY p.post_date ASC" . $pTC_query_limit;
 		logMe("Query: " . esc_attr($pTC_posts_query), 2);
 		$pTC_posts = $wpdb->get_results($pTC_posts_query, ARRAY_A);
 		logMe("Post Dump: \n " . print_r($pTC_posts, TRUE), 3);
@@ -540,8 +545,8 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 			$.post(ajaxurl, {action: 'pTC_ajax', security: '<?php echo $pTC_ajax_nonce; ?>', method: method, data: values}, function(data, status, xhr) {
 				 callback(data, object);
 			}, "json")
-			.fail(function(){
-				alert('The ajax request failed. :(');
+			.fail(function(e, xhr, settings, extn){
+				alert('The ajax request failed:' + extn);
 			});
 		}
 		
@@ -886,6 +891,13 @@ function pTC_show_pTC() {
 							<li>Earliest Date: <input type="text" class="pTC_date pTC_filter" id="pTC_filter_start_date" name="pTC_filter_start_date"></li>
 							<li>Latest Date: <input type="text" class="pTC_date pTC_filter" id="pTC_filter_end_date" name="pTC_filter_end_date"></li>
 							<li>Type: <select class="pTC_types pTC_filter" id="pTC_filter_type" name="pTC_filter_type"></select></li>
+							<li>Limit: <select class="pTC_limit pTC_filter" id="pTC_filter_limit" name="pTC_filter_limit">
+									<option>10</option>
+									<option>25</option>
+									<option selected="selected">50</option>
+									<option>100</option>
+									<option>ALL</option>
+								</select>
 							<li><input type="button" id="pTC_filter_reset" value="Reset">
 						</ul>
 				</div>
