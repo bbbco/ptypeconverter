@@ -2,7 +2,7 @@
 /*
 Plugin Name: pTypeConverter
 Plugin URI: http://www.briandgoad.com/downloads/pTypeConverter
-Version: 0.2.1
+Version: 0.2.7
 Author: Brian D. Goad
 Author URI: http://www.briandgoad.com/
 Description: This plugin, a complete reworking of my old plugin p2pConverter, allows you to easily convert any post type of a certain post to another in an easy to use interface. A pTypeConverter role capability prevents unwanted users from converting pages (i.e. only Administrators and Editors have this ability), which can be adjusted by using a Role Manager plugin. The user interface is located at the pTypeConverter submenu located under the Tools menu.

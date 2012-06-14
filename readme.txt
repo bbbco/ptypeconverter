@@ -4,8 +4,8 @@ Author URI: http://www.briandgoad.com/blog
 Plugin URI: http://www.briandgoad.com/blog/pTypeConverter
 Tags: post, posts, page, pages, admin, plugin, convert, change, pTC, p2pConverter, custom post, custom posts, post type, post types,
 Requires at least: 2.9
-Tested up to: 3.3.1
-Stable tag: 0.2.5
+Tested up to: 3.4
+Stable tag: 0.2.7
 =======
 
 == Description ==
