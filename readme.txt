@@ -2,10 +2,10 @@
 Author: Brian D. Goad (bbbco)
 Author URI: http://www.briandgoad.com/blog
 Plugin URI: http://www.briandgoad.com/blog/pTypeConverter
-Tags: post, posts, page, pages, admin, plugin, convert, change, pTC, p2pConverter, custom post, custom posts, post type, post types,
+Tags: post, posts, page, pages, admin, plugin, convert, change, switch, pTC, p2pConverter, pTypeConverter, custom post, custom posts, post type, post types
 Requires at least: 2.9
-Tested up to: 3.4
-Stable tag: 0.2.7
+Tested up to: 3.4.2
+Stable tag: 0.2.8
 =======
 
 == Description ==
@@ -35,6 +35,13 @@ submenu.
 * Implement proper Admin display of posts screen
 
 == Version History ==
+
+= Version 0.2.8 =
+* Fixed bugs with converting to blank type/disappearing posts (thanks Stephanie!), Logging bugs, other small tweaks
+
+= Version 0.2.7 =
+* Fixed bugs
+
 = Version 0.2.5 =
 * Added Welcome screen with instructions and FAQ
 * Enhanced user interface functionality with convert messages

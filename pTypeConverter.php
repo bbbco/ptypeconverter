@@ -2,10 +2,16 @@
 /*
 Plugin Name: pTypeConverter
 Plugin URI: http://www.briandgoad.com/downloads/pTypeConverter
-Version: 0.2.7
+Version: 0.2.8
 Author: Brian D. Goad
 Author URI: http://www.briandgoad.com/
-Description: This plugin, a complete reworking of my old plugin p2pConverter, allows you to easily convert any post type of a certain post to another in an easy to use interface. A pTypeConverter role capability prevents unwanted users from converting pages (i.e. only Administrators and Editors have this ability), which can be adjusted by using a Role Manager plugin. The user interface is located at the pTypeConverter submenu located under the Tools menu.
+Description: This plugin, a complete reworking of my old plugin p2pConverter, allows you to 
+			 easily convert any post type of a certain post to another in an easy to use interface. 
+			 A pTypeConverter role capability prevents unwanted users from converting pages (i.e. 
+			 only Administrators and Editors have this ability), which can be adjusted by using a 
+			 Role Manager plugin. The user interface is located at the pTypeConverter submenu located 
+			 under the Tools menu.
+			 
 */
 
 register_activation_hook(__FILE__,'pTC_install');
@@ -14,18 +20,13 @@ register_deactivation_hook(__FILE__,'pTC_uninstall');
 //Add p2p Capabilities to top two basic roles. Can be adjusted with Role Manager plugin.	
 function pTC_install() {
 	global $wpdb;
-	
 	add_action('admin_notices', 'pTC_show_error', 10, 2);
-
 	if ( version_compare(get_bloginfo('version'), '3.2', '>=')) {
-	
-		$pTC_table = $wpdb->prefix . "pTC_logs";
-	
+		$pTC_table = $wpdb->prefix . "pTC_logs";	
 		add_option("pTC_log_db_version", "0.1");
-	
+		
 		//Create logging table
 		if($wpdb->get_var("show tables like '$pTC_table'") != $pTC_table) {
-	
 			$sql = "CREATE TABLE " . $pTC_table . " (
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
 				time datetime NOT NULL,
@@ -34,20 +35,12 @@ function pTC_install() {
 				priority smallint(1) NOT NULL,
 				UNIQUE KEY id (id)
 			);";
-		
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			dbDelta($sql);
-		
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');			dbDelta($sql);
 		}
-	
 		
-		//Begin logging
-		logMe("Begin Installation");
-
-		$role = get_role('administrator');
-		$role->add_cap('pTypeConverter');
+		//Begin logging		logMe("Begin Installation");
+		$role = get_role('administrator');		$role->add_cap('pTypeConverter');
 		logMe("Installed Admin Role", 2);
-		
 		$role2 = get_role('editor');
 		$role2->add_cap('pTypeConverter');
 		logMe("Installed Editor Role", 2);
@@ -156,7 +149,6 @@ function pTC_menu() {
 		add_option('pTC_show_advanced_post_types', 'false');
 		add_option('pTC_show_logging', 'false');
 		
-		
 	} else {
 	
 		logMe("User " . $current_user->display_name . " is unable to view pTypeConverter link in admin because they lack the capability.", 0);
@@ -211,10 +203,9 @@ function pTC_ajax() {
 			$pTC_logs_table = $wpdb->prefix . "pTC_logs";
 			$pTC_logs_query = "SELECT p.time, p.priority, u.user_login, p.message FROM " . $pTC_logs_table . " AS p, " . $wpdb->users . " AS u WHERE p.userid = u.ID AND p.priority <= " . $pTC_logging_level;
 			logMe("Query: " . $pTC_logs_query, 2);
-			$pTC_logs = $wpdb->get_results($pTC_logs_query, ARRAY_A);
-			
-			$pTC_logs = json_encode($pTC_logs);
-			echo $pTC_logs;
+			$pTC_logs = $wpdb->get_results($pTC_logs_query, ARRAY_A);			
+			if(!empty($pTC_logs)) {				$pTC_logs = json_encode($pTC_logs);				echo $pTC_logs;
+			}
 			
 		}
 	
@@ -298,7 +289,7 @@ function pTC_ajax() {
 				foreach($pTC_types as $pTC_type) {
 					$pTC_type_query .= " OR p.post_type = '" . $pTC_type . "'";
 				}
-				$pTC_query_addition .= " AND (p.post_type = 1 " . $pTC_type_query . ")";			
+				$pTC_query_addition .= " AND (p.post_type = '' " . $pTC_type_query . ")";			
 			}
 			
 			if ($pTC_id != "") {
@@ -307,10 +298,9 @@ function pTC_ajax() {
 				}
 			}
 
-                        if ($pTC_filter_limit != "ALL") {
-                                $pTC_query_limit .= " LIMIT " . esc_attr($pTC_filter_limit);
-                        }
-
+			if ($pTC_filter_limit != "ALL") {
+					$pTC_query_limit .= " LIMIT " . esc_attr($pTC_filter_limit);
+			}
 				
 		} else {
 		
@@ -339,64 +329,70 @@ function pTC_ajax() {
 			
 			$pTC_ids = @$_POST['data'];
 			$pTC_type = attribute_escape(array_pop($pTC_ids));
-			
-			logMe("Prepare for post and type dump: \n Convert to Post Type:" . $pTC_type . "\n Post IDs: " . print_r($pTC_ids, TRUE), 2);
-			
-			$pTCquery = "UPDATE " . $wpdb->posts . " SET post_type = '" . $pTC_type . "' WHERE ";
-			$results = array();
-			
-			if(is_array($pTC_ids) ) {
-			
-				foreach ($pTC_ids as $pTC_id) {
-			
-					$pTC_type_check = $wpdb->get_row("SELECT post_title,post_type FROM " . $wpdb->posts . " WHERE id=" . $pTC_id . "");
-					logMe("PostId: " . $pTC_id . "<br />Original PostType: " . print_r($pTC_type_check->post_type . "<br/>Converting PostType: " . $pTC_type, TRUE));
-					
-					if ($pTC_type_check->post_type != $pTC_type) {
-					
-						$pTCqueryone = $pTCquery . "id=" . $pTC_id;
-						
-					} else {
-					
-						logMe("Conversion to " . $pTC_type . " failed because it is already a " . $pTC_type, 0);
-						array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'The selected item is already a ' . $pTC_type)); 
-						continue;
-						
-					}
-					
-					logMe("Query: " . $pTCqueryone, 2);
-					$queryresult = $wpdb->query($pTCqueryone);
-					$queryerror = $wpdb->print_error();
-					logMe("Errors: " . $queryerror, 0);
-					
-					if ($queryresult) {
-					
-						logMe("Conversion to " . $pTC_type . " succeeded", 0);
-						$pTC_type_check = $wpdb->get_row("SELECT post_title,post_type FROM " . $wpdb->posts . " WHERE id=" . $pTC_id . "");
-						logMe("PostId: " . $pTC_id . "		Confirmed PostType after conversion: " . print_r($pTC_type_check->post_type, TRUE), 1);
-						array_push($results, array('pTC_id' => $pTC_id, 'result' => 'succeeded', 'pTC_type' => $pTC_type_check->post_type, 'message' => 'Success!'));
-						
-					} else if ($queryerror) {
-					
-						logMe("Conversion to " . $pTC_type . " did not suceed because of SQL Error: " . $queryerror, 0);					
-						array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'SQL Error: ' . $queryerror)); 						
-						
-					} else {
+			if($pTC_type) { 
 
-						logMe("Conversion to " . $pTC_type . " did not suceed because of unknown error.", 0);					
-						array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'Unknown Error!')); 						
-					
-					}
-			
-				}
-								
-			}			
-			
-			//Important! Rewrites permalinks for post/page files 
-			$wp_rewrite->flush_rules();
+				logMe("Prepare for post and type dump: \n Convert to Post Type:" . $pTC_type . "\n Post IDs: " . print_r($pTC_ids, TRUE), 2);
+				
+				$pTCquery = "UPDATE " . $wpdb->posts . " SET post_type = '" . $pTC_type . "' WHERE ";
+				$results = array();
+				
+				if(is_array($pTC_ids) ) {
+				
+					foreach ($pTC_ids as $pTC_id) {
+				
+						$pTC_type_check = $wpdb->get_row("SELECT post_title,post_type FROM " . $wpdb->posts . " WHERE id=" . $pTC_id . "");
+						logMe("PostId: " . $pTC_id . "<br />Original PostType: " . print_r($pTC_type_check->post_type . "<br/>Converting PostType: " . $pTC_type, TRUE));
+						
+						if ($pTC_type_check->post_type != $pTC_type) {
+						
+							$pTCqueryone = $pTCquery . "id=" . $pTC_id;
 							
-			echo json_encode($results);
-			
+						} else {
+						
+							logMe("Conversion to " . $pTC_type . " failed because it is already a " . $pTC_type, 0);
+							array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'The selected item is already a ' . $pTC_type)); 
+							continue;
+							
+						}
+						
+						logMe("Query: " . $pTCqueryone, 2);
+						$queryresult = $wpdb->query($pTCqueryone);
+						$queryerror = $wpdb->print_error();
+						logMe("Errors: " . $queryerror, 0);
+						
+						if ($queryresult) {
+						
+							logMe("Conversion to " . $pTC_type . " succeeded", 0);
+							$pTC_type_check = $wpdb->get_row("SELECT post_title,post_type FROM " . $wpdb->posts . " WHERE id=" . $pTC_id . "");
+							logMe("PostId: " . $pTC_id . "		Confirmed PostType after conversion: " . print_r($pTC_type_check->post_type, TRUE), 1);
+							array_push($results, array('pTC_id' => $pTC_id, 'result' => 'succeeded', 'pTC_type' => $pTC_type_check->post_type, 'message' => 'Success!'));
+							
+						} else if ($queryerror) {
+						
+							logMe("Conversion to " . $pTC_type . " did not suceed because of SQL Error: " . $queryerror, 0);					
+							array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'SQL Error: ' . $queryerror)); 						
+							
+						} else {
+
+							logMe("Conversion to " . $pTC_type . " did not suceed because of unknown error.", 0);					
+							array_push($results, array('pTC_id' => $pTC_id, 'result' => 'failed', 'message' => 'Unknown Error!')); 						
+						
+						}
+				
+					}
+
+								
+				}
+								//Important! Rewrites permalinks for post/page files 
+				$wp_rewrite->flush_rules();
+								
+				echo json_encode($results);
+				
+			} else {
+				
+				echo json_encode(array('result' => 'failed', 'message' => 'No post type selected! Please select a post type to convert to and try again.'));
+					
+			}	
 		}
 	} else if ($_POST['method'] == 'pTC_advanced_posts') {
 	
@@ -436,7 +432,7 @@ add_action('wp_ajax_pTC_ajax', 'pTC_ajax');
 
 function pTC_header() {
 
-$pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
+	$pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 
 ?>
 
@@ -471,7 +467,7 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 		$('#pTC_logging_clear').click(function() {
 			var clear = confirm("Are you sure you want to clear all pTypeConverter Logging? This will remove all historical data, and you will start over from scratch.");
 			if (clear) {
-				postajax("clearlogs", "", "#pTC_table_logging tbody");
+				postajax("clearlogs", "", clearlogs_confirmation, "#pTC_table_logging tbody");
 			}
 			return false;
 		});
@@ -549,16 +545,22 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 				alert('The ajax request failed:' + extn);
 			});
 		}
+		function clearlogs_confirmation(data, object) {
 		
+			$(object).empty();
+			alert(data.message);
+		
+		}
 		function appendRows(json, table) {
-			var html = "";
+			var html = "";			
+			if(!json) {
 			
-			if(json.message) {
-			    html += 
+				html += '<tr class="info"><td colspan=5>Nothing to display!</td></tr>\n';
+			
+			} else if(json.message) {
 				html += '<tr class="info"><td colspan=5>' + json.message + '</td></tr>\n';
 
-			} else {
-				
+			} else {				
 				$.each(json, function(i,row) {
 					html += "<tr id=\"pTC_" + row.id + "\">";
 					$.each(row, function(j,cell) {
@@ -570,15 +572,13 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 					});
 					html += "</tr>\n";
 				});
-
-			}
-			
+			}			
 			$(table).empty().append(html);
-			console.log("appended");
+			//console.log("appended");
 		}
 		
 		function rebindPostsTable() {
-			console.log("rebinding posts table");
+			//console.log("rebinding posts table");
 			$("#pTC_table_posts").trigger("update"); 
 			
 			$('#pTC_table_posts tr').hover(function(){
@@ -600,7 +600,6 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 		
 		function appendOptions(json, element) {
 			var html = "";
-			html += "<option></option>\n";
 			$.each(json, function(i, select){
 				html += "<option value='" + select.ID + "'>" + select.value + "</option>\n";
 			});
@@ -611,17 +610,20 @@ $pTC_ajax_nonce = wp_create_nonce("pTC-ajax-check");
 
 			$("#pTC_table_posts span.message").remove();
 			$("#pTC_table_posts tr").removeClass("ui-state-error").removeClass("ui-state-highlight");
+			if(json.result == "failed") {
+				alert(json.message);
+			} else {
+								$.each(json, function(i, item) { 
+					if(item.result == "succeeded") {
+						$("#pTC_" + item.pTC_id).addClass("ui-state-highlight");
+						$("#pTC_" + item.pTC_id + " td:last").html(item.pTC_type + "<span class=\"success message\">" + item.message + "</span>");
+					} else {
+						$("#pTC_" + item.pTC_id).addClass("ui-state-error");
+						$("#pTC_" + item.pTC_id + " td:last").append("<span class=\"error message\">" + item.message + "</span>");
+					}
+				});
 
-			$.each(json, function(i, item) { 
-				if(item.result == "succeeded") {
-					$("#pTC_" + item.pTC_id).addClass("ui-state-highlight");
-					$("#pTC_" + item.pTC_id + " td:last").html(item.pTC_type + "<span class=\"success message\">" + item.message + "</span>");
-				} else {
-					$("#pTC_" + item.pTC_id).addClass("ui-state-error");
-					$("#pTC_" + item.pTC_id + " td:last").append("<span class=\"error message\">" + item.message + "</span>");
-				}
-			});
-
+			}
 			$("#pTC_table_posts input[type='checkbox']").attr("checked", false);
 		
 		}
