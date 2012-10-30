@@ -4,14 +4,14 @@
 
 # main config
 PLUGINSLUG="ptypeconverter"
-CURRENTDIR=`pwd`
+CURRENTDIR="`pwd`"
 MAINFILE="pTypeConverter.php" # this should be the name of your main php file in the wordpress plugin
 
 # git config
-GITPATH="$CURRENTDIR/" # this file should be in the base of your git repository
+GITPATH="${CURRENTDIR}/" # this file should be in the base of your git repository
 
 # svn config
-SVNPATH="/tmp/$PLUGINSLUG" # path to a temp SVN repo. No trailing slash required and don't add trunk.
+SVNPATH="/tmp/${PLUGINSLUG}" # path to a temp SVN repo. No trailing slash required and don't add trunk.
 SVNURL="http://plugins.svn.wordpress.org/ptypeconverter/" # Remote SVN repo on wordpress.org, with no trailing slash
 SVNUSER="bbbco" # your svn username
 
@@ -25,16 +25,16 @@ echo ".........................................."
 echo 
 
 # Check version in readme.txt is the same as plugin file
-NEWVERSION1=`grep "^Stable tag" $GITPATH/readme.txt | awk -F' ' '{print $3}'`
+NEWVERSION1=`grep "^Stable tag" "${GITPATH}/readme.txt" | awk -F' ' '{print $3}'`
 echo "readme version: $NEWVERSION1"
-NEWVERSION2=`grep "^Version" $GITPATH/$MAINFILE | awk -F' ' '{print $2}'`
+NEWVERSION2=`grep "^Version" "${GITPATH}/$MAINFILE" | awk -F' ' '{print $2}'`
 echo "$MAINFILE version: $NEWVERSION2"
 
 if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then echo "Versions don't match. Exiting...."; exit 1; fi
 
 echo "Versions match in readme.txt and PHP file. Let's proceed..."
 
-cd $GITPATH
+cd "${GITPATH}"
 echo -e "Enter a commit message for this new version: \c"
 read COMMITMSG
 git commit -am "$COMMITMSG"
