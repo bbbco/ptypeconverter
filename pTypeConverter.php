@@ -2,7 +2,7 @@
 /*
 Plugin Name: pTypeConverter
 Plugin URI: http://www.briandgoad.com/downloads/pTypeConverter
-Version: 0.2.8
+Version: 0.2.8.1
 Author: Brian D. Goad
 Author URI: http://www.briandgoad.com/
 Description: This plugin, a complete reworking of my old plugin p2pConverter, allows you to 
@@ -102,17 +102,23 @@ function logMe($text,$prio=1) {
 	$userid = $current_user->ID;
     $text = esc_attr($text);
     $time = date('Y-m-d H:i:s ',time());
-	$sql="INSERT INTO " . $pTC_table . " (time,userid,message,priority)
-                      VALUES (
-                      '$time',
-					  '$userid',
-                      '$text',
-                      '$prio'
-                      )";
-    $wpdb->query($wpdb->prepare($sql)) or do_action('admin_notices', "Cant add pTC log to db!", $sql);
+    $wpdb->insert($pTC_table, 
+		array(
+			'time' => $time,
+			'userid' => $userid,
+			'message' => $text,
+			'priority' => $prio
+		),
+		array(
+			'%s',
+			'%d',
+			'%s',
+			'%d'
+		)
+	) or do_action('admin_notices', "Cant add pTC log to db!", $sql);
 
     unset($sql);
-	unset($userid);
+    unset($userid);
     unset($text);
     unset($time);
     unset($pTC_table);

@@ -4,8 +4,8 @@ Author URI: http://www.briandgoad.com/blog
 Plugin URI: http://www.briandgoad.com/blog/pTypeConverter
 Tags: post, posts, page, pages, admin, plugin, convert, change, switch, pTC, p2pConverter, pTypeConverter, custom post, custom posts, post type, post types
 Requires at least: 2.9
-Tested up to: 3.4.2
-Stable tag: 0.2.8
+Tested up to: 3.5
+Stable tag: 0.2.8.1
 =======
 
 == Description ==
@@ -35,6 +35,9 @@ submenu.
 * Implement proper Admin display of posts screen
 
 == Version History ==
+
+= Version 0.2.8.1 =
+* Fixed a bug with new requirements in WP 3.5
 
 = Version 0.2.8 =
 * Fixed bugs with converting to blank type/disappearing posts (thanks Stephanie!), Logging bugs, other small tweaks
