@@ -63,3 +63,5 @@ submenu.
 * Rewrote from my old plugin p2pConverter
 * Created its own submenu page
 * Allow bulk conversion
+
+Join the chat at https://gitter.im/bbbco/ptypeconverter
